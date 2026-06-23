@@ -1,0 +1,19 @@
+{
+  "name": "Misra Toxuması",
+  "short_name": "Misra",
+  "description": "Sözlərdən şeir toxuyan tətbiq",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#15181F",
+  "theme_color": "#1B1F2E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
