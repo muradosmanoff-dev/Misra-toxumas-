@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1B1F2E" />
+<title>Misra Toxuması</title>
+
+<!-- iOS/Android "Add to Home Screen" üçün tətbiq kimi görünmə -->
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Misra Toxuması" />
+<link rel="apple-touch-icon" href="icon.png" />
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #15181F; }
+  #root { min-height: 100vh; }
+
+  .page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: radial-gradient(ellipse at top, #232838 0%, #1B1F2E 55%, #15181F 100%);
+    color: #E8E1D3;
+    font-family: 'Inter', sans-serif;
+    padding: max(48px, env(safe-area-inset-top)) 20px 60px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .container { width: 100%; max-width: 640px; }
+
+  .header { text-align: center; margin-bottom: 40px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #C9A66B; font-weight: 600; margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600;
+    font-size: 42px; margin: 0; color: #F2EDE1; letter-spacing: 0.01em;
+  }
+  .header p {
+    margin: 12px auto 0; color: #A8A2C0; font-size: 14.5px; max-width: 420px; line-height: 1.6;
+  }
+
+  .word-card {
+    background: rgba(232, 225, 211, 0.04);
+    border: 1px solid rgba(201, 166, 107, 0.25);
+    border-radius: 18px; padding: 22px; backdrop-filter: blur(6px);
+  }
+
+  .word-tray { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+  .word-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(201, 166, 107, 0.14); border: 1px solid rgba(201, 166, 107, 0.4);
+    color: #F2EDE1; padding: 6px 8px 6px 14px; border-radius: 999px;
+    font-size: 14.5px; font-family: 'Lora', serif; animation: pop 0.25s ease;
+  }
+  @keyframes pop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .word-chip button {
+    background: none; border: none; color: #C9A66B; cursor: pointer;
+    display: flex; align-items: center; padding: 2px; border-radius: 50%;
+    transition: background 0.15s, color 0.15s;
+  }
+  .word-chip button:hover { background: rgba(232, 225, 211, 0.12); color: #E8E1D3; }
+
+  .input-row { display: flex; gap: 10px; }
+  .input-row input {
+    flex: 1; background: rgba(15, 17, 23, 0.5); border: 1px solid rgba(232, 225, 211, 0.15);
+    border-radius: 12px; padding: 12px 14px; color: #F2EDE1; font-size: 15px;
+    font-family: 'Lora', serif; outline: none; transition: border-color 0.15s;
+  }
+  .input-row input::placeholder { color: #6E6A82; font-family: 'Inter', sans-serif; }
+  .input-row input:focus { border-color: #C9A66B; }
+
+  .add-btn {
+    background: rgba(201, 166, 107, 0.15); border: 1px solid rgba(201, 166, 107, 0.5);
+    color: #C9A66B; padding: 0 18px; border-radius: 12px; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: background 0.15s, transform 0.1s;
+  }
+  .add-btn:hover { background: rgba(201, 166, 107, 0.28); }
+  .add-btn:active { transform: scale(0.97); }
+
+  .controls {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-top: 22px; flex-wrap: wrap;
+  }
+
+  .style-tabs {
+    display: flex; gap: 6px; background: rgba(15, 17, 23, 0.4);
+    padding: 4px; border-radius: 11px; border: 1px solid rgba(232, 225, 211, 0.08);
+  }
+  .style-tab {
+    background: none; border: none; color: #8B86A0; font-size: 12.5px; font-weight: 500;
+    padding: 7px 12px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: background 0.15s, color 0.15s;
+  }
+  .style-tab.active { background: rgba(201, 166, 107, 0.2); color: #F2EDE1; }
+
+  .generate-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, #C9A66B, #B08A4E); border: none; color: #1B1F2E;
+    font-weight: 600; font-size: 14.5px; padding: 12px 22px; border-radius: 12px;
+    cursor: pointer; transition: transform 0.12s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(201, 166, 107, 0.25);
+  }
+  .generate-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(201, 166, 107, 0.35); }
+  .generate-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .generate-btn:active:not(:disabled) { transform: translateY(0); }
+
+  .error-msg { color: #E69A8D; font-size: 13.5px; margin-top: 14px; text-align: center; }
+
+  .poem-sheet {
+    margin-top: 36px;
+    background: linear-gradient(180deg, rgba(232,225,211,0.05), rgba(232,225,211,0.02)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(232,225,211,0.045) 28px);
+    border: 1px solid rgba(232, 225, 211, 0.12); border-radius: 4px;
+    padding: 40px 36px 44px; position: relative; animation: rise 0.5s ease;
+  }
+  .poem-sheet::before {
+    content: ''; position: absolute; left: 28px; top: 0; bottom: 0; width: 1px;
+    background: rgba(201, 166, 107, 0.25);
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .poem-title {
+    font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600;
+    font-size: 26px; color: #C9A66B; margin: 0 0 22px; padding-left: 8px;
+  }
+  .poem-body {
+    font-family: 'Lora', serif; font-size: 18px; line-height: 2.05; color: #ECE6D9;
+    white-space: pre-wrap; padding-left: 8px;
+  }
+  .poem-highlight { color: #C9A66B; font-weight: 600; font-style: italic; }
+
+  .loading-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    padding: 50px 0 30px; color: #8B86A0; font-size: 14px;
+  }
+  .loading-wrap svg { animation: spin 1s linear infinite; color: #C9A66B; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .reset-row { display: flex; justify-content: center; margin-top: 22px; }
+  .reset-link {
+    display: flex; align-items: center; gap: 6px; background: none; border: none;
+    color: #8B86A0; font-size: 13px; cursor: pointer; padding: 6px 10px; border-radius: 8px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .reset-link:hover { color: #E8E1D3; background: rgba(232, 225, 211, 0.06); }
+
+  .empty-hint { text-align: center; color: #6E6A82; font-size: 13px; margin-top: 10px; }
+
+  /* API açarı qutusu */
+  .key-banner {
+    background: rgba(201, 166, 107, 0.08); border: 1px solid rgba(201, 166, 107, 0.3);
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 24px; font-size: 13.5px;
+    color: #C7C2D6; line-height: 1.55;
+  }
+  .key-banner strong { color: #F2EDE1; }
+  .key-banner a { color: #C9A66B; text-decoration: underline; }
+  .key-row { display: flex; gap: 8px; margin-top: 10px; }
+  .key-row input {
+    flex: 1; background: rgba(15, 17, 23, 0.5); border: 1px solid rgba(232, 225, 211, 0.15);
+    border-radius: 10px; padding: 9px 12px; color: #F2EDE1; font-size: 13.5px; outline: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .key-row input:focus { border-color: #C9A66B; }
+  .key-save-btn {
+    background: rgba(201, 166, 107, 0.2); border: 1px solid rgba(201, 166, 107, 0.5);
+    color: #F2EDE1; padding: 0 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .key-status { margin-top: 8px; font-size: 12.5px; color: #8FBF96; }
+
+  @media (prefers-reduced-motion: reduce) { *, .word-chip, .poem-sheet { animation: none !important; } }
+  @media (max-width: 480px) {
+    .header h1 { font-size: 32px; }
+    .poem-sheet { padding: 30px 22px 36px; }
+    .poem-body { font-size: 16.5px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useRef, useEffect } = React;
+const { Feather, X, RotateCcw, Loader2, KeyRound } = lucide;
+
+function LucideIcon({ icon: Icon, size = 16 }) {
+  return <Icon size={size} />;
+}
+
+function PoemGenerator() {
+  const [words, setWords] = useState([]);
+  const [input, setInput] = useState("");
+  const [poem, setPoem] = useState("");
+  const [title, setTitle] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [style, setStyle] = useState("ozgur");
+  const [apiKey, setApiKey] = useState("");
+  const [keyInput, setKeyInput] = useState("");
+  const [keySaved, setKeySaved] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("misra_api_key");
+    if (saved) { setApiKey(saved); setKeyInput(saved); }
+  }, []);
+
+  const saveKey = () => {
+    const k = keyInput.trim();
+    if (!k) return;
+    localStorage.setItem("misra_api_key", k);
+    setApiKey(k);
+    setKeySaved(true);
+    setTimeout(() => setKeySaved(false), 2000);
+  };
+
+  const styles = [
+    { id: "ozgur", label: "Sərbəst şeir" },
+    { id: "hece", label: "Heca ölçüsü" },
+    { id: "aruz", label: "Əruz dadında" },
+  ];
+
+  const addWord = () => {
+    const w = input.trim();
+    if (!w) return;
+    if (words.includes(w)) { setInput(""); return; }
+    setWords([...words, w]);
+    setInput("");
+  };
+
+  const removeWord = (w) => setWords(words.filter((x) => x !== w));
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addWord();
+    } else if (e.key === "Backspace" && input === "" && words.length > 0) {
+      setWords(words.slice(0, -1));
+    }
+  };
+
+  const generatePoem = async () => {
+    if (words.length === 0) { setError("Əvvəlcə ən azı bir söz əlavə et."); return; }
+    if (!apiKey) { setError("Əvvəlcə Anthropic API açarını yapışdır və saxla."); return; }
+
+    setError("");
+    setLoading(true);
+    setPoem("");
+    setTitle("");
+
+    const styleInstruction =
+      style === "hece"
+        ? "Heca ölçüsünə (tərcihən 11 hecalı, dördlüklər şəklində) sadiq qal."
+        : style === "aruz"
+        ? "Əruz vəzninin ahənginə və klassik şeir dilinin dadına yaxınlaş, amma anlaşıqlı qal."
+        : "Sərbəst şeir formasından istifadə et, misra uzunluqları dəyişkən olsun.";
+
+    const prompt = `Sən mahir bir Azərbaycan şairisən. Sənə verilən sözlərin HAMISINI istifadə edərək orijinal, hiss dolu bir şeir yaz. Şeir mütləq Azərbaycan dilində olmalıdır.
+
+Sözlər: ${words.join(", ")}
+
+Qaydalar:
+- ${styleInstruction}
+- Şeir Azərbaycan ədəbi dilində yazılsın, klişe bənzətmələrdən uzaq dur, orijinal obrazlar qur.
+- Şeir 8-16 misra arasında olsun.
+- Verilən sözlərin hər biri şeirdə ən azı bir dəfə keçməli, təbii şəkildə hörülmüş olsun.
+- Şeirin özünə məxsus qısa bir başlığı olsun, başlıq da Azərbaycan dilində olsun.
+
+Yalnız bu JSON formatında cavab ver, başqa heç nə yazma, markdown backtick istifadə etmə:
+{"title": "başlıq", "poem": "misra1\\nmisra2\\nmisra3..."}`;
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      if (!response.ok) {
+        const errBody = await response.text();
+        throw new Error(`API xətası (${response.status}): ${errBody.slice(0, 200)}`);
+      }
+
+      const data = await response.json();
+      const text = data.content
+        .map((b) => (b.type === "text" ? b.text : ""))
+        .join("")
+        .replace(/```json|```/g, "")
+        .trim();
+
+      const parsed = JSON.parse(text);
+      setTitle(parsed.title || "");
+      setPoem(parsed.poem || "");
+    } catch (e) {
+      setError("Şeir yaranmadı: " + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reset = () => {
+    setWords([]); setInput(""); setPoem(""); setTitle(""); setError("");
+    inputRef.current && inputRef.current.focus();
+  };
+
+  const highlightWords = (line) => {
+    if (words.length === 0) return line;
+    const pattern = new RegExp(
+      "(" + words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")",
+      "giu"
+    );
+    const parts = line.split(pattern);
+    return parts.map((part, i) =>
+      words.some((w) => w.toLowerCase() === part.toLowerCase())
+        ? <span key={i} className="poem-highlight">{part}</span>
+        : <span key={i}>{part}</span>
+    );
+  };
+
+  return (
+    <div className="page">
+      <div className="container">
+        <div className="header">
+          <div className="eyebrow">Sözdən Şeirə</div>
+          <h1>Misra Toxuması</h1>
+          <p>Sözlərini burax, qalanını toxuma qoy. Verdiyin hər söz şeirin içində bir tel olub hörülsün.</p>
+        </div>
+
+        {!apiKey && (
+          <div className="key-banner">
+            <strong>Bir dəfəlik qurğu:</strong> Bu tətbiq şeiri yaratmaq üçün öz Anthropic API açarından istifadə edir. Açarı{" "}
+            <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> ünvanından ala bilərsən. Açar yalnız bu telefonda saxlanılır, heç yerə göndərilmir.
+            <div className="key-row">
+              <input
+                type="password"
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value)}
+                placeholder="sk-ant-…"
+              />
+              <button className="key-save-btn" onClick={saveKey}>Saxla</button>
+            </div>
+            {keySaved && <div className="key-status">Açar saxlanıldı ✓</div>}
+          </div>
+        )}
+
+        <div className="word-card">
+          {words.length > 0 && (
+            <div className="word-tray">
+              {words.map((w) => (
+                <span className="word-chip" key={w}>
+                  {w}
+                  <button onClick={() => removeWord(w)} aria-label={`${w} sözünü sil`}>
+                    <LucideIcon icon={X} size={13} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="input-row">
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="bir söz yaz, Enter-ə bas…"
+              autoFocus
+            />
+            <button className="add-btn" onClick={addWord}>Əlavə et</button>
+          </div>
+
+          {words.length === 0 && <div className="empty-hint">misal: yağış, ayrılıq, pəncərə, sükut</div>}
+
+          <div className="controls">
+            <div className="style-tabs">
+              {styles.map((s) => (
+                <button
+                  key={s.id}
+                  className={"style-tab" + (style === s.id ? " active" : "")}
+                  onClick={() => setStyle(s.id)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            <button className="generate-btn" onClick={generatePoem} disabled={loading}>
+              <LucideIcon icon={loading ? Loader2 : Feather} size={16} />
+              {loading ? "Toxunur…" : "Şeiri Yarat"}
+            </button>
+          </div>
+
+          {error && <div className="error-msg">{error}</div>}
+        </div>
+
+        {loading && (
+          <div className="loading-wrap">
+            <LucideIcon icon={Loader2} size={26} />
+            <span>Sözlər misraya dönüşür…</span>
+          </div>
+        )}
+
+        {!loading && poem && (
+          <>
+            <div className="poem-sheet">
+              {title && <h2 className="poem-title">{title}</h2>}
+              <div className="poem-body">
+                {poem.split("\n").map((line, i) => (
+                  <div key={i}>{line.trim() === "" ? "\u00A0" : highlightWords(line)}</div>
+                ))}
+              </div>
+            </div>
+            <div className="reset-row">
+              <button className="reset-link" onClick={reset}>
+                <LucideIcon icon={RotateCcw} size={14} /> Yenidən başla
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<PoemGenerator />);
+</script>
+</body>
+</html>
